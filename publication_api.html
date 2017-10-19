@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <title>SPARQL Test</title>
+    <link rel="shortcut icon" href="">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+  </head>
+  <body>
+	<div class="author">
+		<h1>Search Publications:</h1>
+		<label for="publication_search">Publications:</label>
+		<input id="publication_search" type="text"></input>
+		<button onclick="queryPublicationAction()">Search</button>
+		<div id="publication_results">
+		
+		</div>
+	</div>	
+  </body>
+  <script>
+	function queryPublicationAction(){
+		var publication = $("#publication_search").val();
+		//console.log(publication);
+		queryPublication(publication);
+	}
+	
+	function queryPublication(publication) {
+		$.ajax({
+    		url: 'http://dblp.org/search/publ/api?q=' + publication + '&format=jsonp' ,
+    		data: '',
+    		type: 'GET',
+    		crossDomain: true,
+    		dataType: 'jsonp',
+    		success: function(data) { processPublicationData(data); },
+   			error: function() { alert('Failed!'); },
+		});
+	}
+	
+	function processPublicationData(data) {
+		var result = "";
+		$("#publication_results").html("");
+		var totalHits = data.result.hits["@total"];
+		var hitsHeader = $("<h2>").html("Total hits " + totalHits);
+		console.log(data.result.hits);
+		var hitsContainer = $("<div>");
+		$(data.result.hits.hit).each(function (index, elem){ 
+			console.log(elem);
+			var hit = $("<a>").attr("href",elem.info.url).addClass("element-link");
+			$(hit).append(elem.info.title);
+			hitsContainer.append(hit);
+		});
+		$("#publication_results").append(hitsHeader).append(hitsContainer);
+		
+	}
+  </script>
+</html>

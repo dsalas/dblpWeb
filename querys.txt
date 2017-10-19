@@ -1,0 +1,84 @@
+//All journals
+SELECT ?s 
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Journal
+} LIMIT 10
+
+//All journals title
+SELECT DISTINCT ?s ?title
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Journal AND
+  	 
+}
+
+//Articles and title and creator
+SELECT ?s ?title ?creator
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Article . ?s dc:title ?title . ?s dc:creator ?creator
+} 
+LIMIT 100
+
+SELECT ?s ?title ?creator ?name
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Article . ?s dc:title ?title . ?s dc:creator ?creator . ?creator foaf:name ?name .
+} 
+LIMIT 10
+
+//Author by name
+SELECT ?s ?title ?creator ?name
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Article . ?s dc:title ?title . ?s dc:creator ?creator . ?creator foaf:name ?name . FILTER regex(?name, "mo", "i")
+} 
+LIMIT 10
+
+//Authors 
+SELECT DISTINCT ?creator ?name
+WHERE {
+ ?s dc:creator ?creator . ?creator foaf:name ?name . FILTER regex(?name, "diego", "i")
+} 
+LIMIT 30
+
+select ?s ?o
+where { ?s dc:creator ?o}
+limit 10
+
+//Properties
+dc:creator [http]
+dc:identifier [http]
+dc:subject [http]
+dc:title [http]
+dc:type [http]
+dcterms:bibliographicCitation [http]
+dcterms:issued [http]
+dcterms:partOf [http]
+dcterms:references [http]
+dcterms:tableOfContent [http]
+swrc:editor [http]
+swrc:journal [http]
+swrc:number [http]
+swrc:pages [http]
+swrc:series [http]
+swrc:volume [http]
+rdf:type [http]
+rdfs:label [http]
+rdfs:seeAlso [http]
+owl:sameAs [http]
+foaf:homepage [http]
+foaf:maker [http]
+foaf:name [http]
+foaf:page [http]
+
+//Clases
+swrc:Article [http]
+swrc:Collection [http]
+swrc:Conference [http]
+swrc:Journal [http]
+foaf:Agent [http]
+foaf:Document [http]
+
+http://dblp.l3s.de/d2r/sparql?
+query=PREFIX+swrc%3A+%3Chttp%3A%2F%2Fswrc.ontoware.org%2Fontology%23%3E%0D%0APREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0D%0APREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+d2r%3A+%3Chttp%3A%2F%2Fsites.wiwiss.fu-berlin.de%2Fsuhl%2Fbizer%2Fd2r-server%2Fconfig.rdf%23%3E%0D%0APREFIX+xsd%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0D%0APREFIX+map%3A+%3Cfile%3A%2F%2F%2Fhome%2Fdiederich%2Fd2r-server-0.3.2%2Fdblp-mapping.n3%23%3E%0D%0APREFIX+foaf%3A+%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0D%0APREFIX+dc%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%3E%0D%0ASELECT+%3Fs+%0D%0AWHERE+%7B%0D%0A++%3Fs+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23type%3E+swrc%3AJournal%0D%0A%7D
+&output=json
+
+
+http://dblp.l3s.de/d2r/sparql?query=PREFIX+swrc%3A+%3Chttp%3A%2F%2Fswrc.ontoware.org%2Fontology%23%3E%0D%0APREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0D%0APREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+d2r%3A+%3Chttp%3A%2F%2Fsites.wiwiss.fu-berlin.de%2Fsuhl%2Fbizer%2Fd2r-server%2Fconfig.rdf%23%3E%0D%0APREFIX+xsd%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2001%2FXMLSchema%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0D%0APREFIX+map%3A+%3Cfile%3A%2F%2F%2Fhome%2Fdiederich%2Fd2r-server-0.3.2%2Fdblp-mapping.n3%23%3E%0D%0APREFIX+foaf%3A+%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0D%0APREFIX+dc%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%3E%0D%0ASELECT+%3Fs+%3Ftitle+%3Fcreator%0D%0AWHERE+%7B%0D%0A++%3Fs+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23type%3E+swrc%3AArticle+.+%3Fs+dc%3Atitle+%3Ftitle+.+%3Fs+dc%3Acreator+%3Fcreator%0D%0A%7D+%0D%0ALIMIT+100&output=json

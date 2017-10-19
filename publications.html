@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>SPARQL Test</title>
+    <link rel="shortcut icon" href="">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <script src="utils.js"></script>
+  </head>
+  <body>
+	<div class="publication">
+		<h1>Publications:</h1>
+		<div id="publication_results">
+		
+		</div>
+	</div>	
+  </body>
+  <script>
+  $(function() {
+  	 var authorUri = getUrlParameter('author');	
+  	 queryAuthorPublications(authorUri);
+  });
+  
+	function queryAuthorPublications(authorUri){
+		var author = $("#author_search").val();
+		var query = prefixes + "SELECT DISTINCT ?creator ?name" + "\n" +
+"WHERE {" + "\n" +
+  "?s dc:creator ?creator . ?creator foaf:name ?name . FILTER regex(?name,\"" + author + "\", \"i\")" +  "\n" +
+"}"+ "\n" +
+"LIMIT 30";
+		queryAuthor(query);
+	}
+	
+	function queryAuthor(query) {
+   		var encoded = encodeURIComponent(query);
+   		console.log(encoded);
+   	$.ajax({
+    	url: 'http://dblp.l3s.de/d2r/sparql?query=' + encoded + '&output=json',
+    	data: '',
+    	type: 'GET',
+    	crossDomain: true,
+    	dataType: 'jsonp',
+    	success: function(data) { console.log(data); processAuthorData(data); },
+    	error: function() { alert('Failed!'); },
+	});
+	}
+	
+	function processAuthorData(data) {
+		var result = "";
+		$("#author_results").html("");
+		var totalHits = data.results.bindings.length;
+		var hitsHeader = $("<h2>").html("Total results " + totalHits);
+		var hitsContainer = $("<div>");
+		$(data.results.bindings).each(function (index, elem){ 
+			console.log(elem);
+			var row = $("<div>").addClass("element-row");
+			var hit = $("<a>").attr("href", elem.creator.value).addClass("element-link");
+			$(hit).append(elem.name.value);
+			var authorUri = encodeURIComponent(elem.creator.value);
+			var toDocuments = $("<a>").attr("href", "publications?author="+ authorUri).append("Documents");
+			$(row).append(hit).append(toDocuments);
+			hitsContainer.append(row);
+		});
+		$("#author_results").append(hitsHeader).append(hitsContainer);
+		
+	}
+  </script>
+</html>
