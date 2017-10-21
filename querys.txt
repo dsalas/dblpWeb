@@ -38,8 +38,16 @@ WHERE {
 } 
 LIMIT 30
 
+//Authors and articles
+SELECT ?creator ?name count( ?s )
+WHERE {
+ ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> swrc:Article . ?s dc:creator ?creator . ?creator foaf:name ?name . FILTER regex(?name, "diego", "i")
+} 
+GROUP BY ?creator ?name
+LIMIT 30
+
 select ?s ?o
-where { ?s dc:creator ?o}
+where { ?s dc:creator <http://dblp.l3s.de/d2r/resource/authors/Diego_Cattaruzza>}
 limit 10
 
 //Properties

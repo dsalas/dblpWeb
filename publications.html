@@ -16,21 +16,20 @@
   </body>
   <script>
   $(function() {
-  	 var authorUri = getUrlParameter('author');	
+  	 var authorUri = decodeURIComponent(getUrlParameter('author'));
+  	 console.log(authorUri);
   	 queryAuthorPublications(authorUri);
   });
   
 	function queryAuthorPublications(authorUri){
 		var author = $("#author_search").val();
-		var query = prefixes + "SELECT DISTINCT ?creator ?name" + "\n" +
-"WHERE {" + "\n" +
-  "?s dc:creator ?creator . ?creator foaf:name ?name . FILTER regex(?name,\"" + author + "\", \"i\")" +  "\n" +
-"}"+ "\n" +
-"LIMIT 30";
+		var query = prefixes + "select ?s ?title\n" +
+"where { ?s dc:creator <" + authorUri + "> . ?s  dc:title ?title . }\n"+
+"limit 30";
 		queryAuthor(query);
 	}
 	
-	function queryAuthor(query) {
+	function queryAuthor(query,authorName) {
    		var encoded = encodeURIComponent(query);
    		console.log(encoded);
    	$.ajax({
@@ -39,28 +38,27 @@
     	type: 'GET',
     	crossDomain: true,
     	dataType: 'jsonp',
-    	success: function(data) { console.log(data); processAuthorData(data); },
+    	success: function(data) { console.log(data); processPublicationData(data); },
     	error: function() { alert('Failed!'); },
 	});
 	}
 	
-	function processAuthorData(data) {
+	function processPublicationData(data) {
 		var result = "";
-		$("#author_results").html("");
+		$("#publication_results").html("");
 		var totalHits = data.results.bindings.length;
-		var hitsHeader = $("<h2>").html("Total results " + totalHits);
+		var authorName = decodeURIComponent(getUrlParameter('authorname'));
+		var hitsHeader = $("<h2>").html("Articles written by " + authorName);
 		var hitsContainer = $("<div>");
 		$(data.results.bindings).each(function (index, elem){ 
 			console.log(elem);
 			var row = $("<div>").addClass("element-row");
-			var hit = $("<a>").attr("href", elem.creator.value).addClass("element-link");
-			$(hit).append(elem.name.value);
-			var authorUri = encodeURIComponent(elem.creator.value);
-			var toDocuments = $("<a>").attr("href", "publications?author="+ authorUri).append("Documents");
-			$(row).append(hit).append(toDocuments);
+			var hit = $("<a>").attr("href", elem.s.value).addClass("element-link");
+			$(hit).append(elem.title.value);
+			$(row).append(hit);
 			hitsContainer.append(row);
 		});
-		$("#author_results").append(hitsHeader).append(hitsContainer);
+		$("#publication_results").append(hitsHeader).append(hitsContainer);
 		
 	}
   </script>

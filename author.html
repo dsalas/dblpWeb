@@ -18,6 +18,13 @@
 	</div>	
   </body>
   <script>
+  
+  	$(function () {
+  		if ($("#author_search").val() != "") {
+			queryAuthorAction();
+  		}
+  	});
+  	
 	function queryAuthorAction(){
 		var author = $("#author_search").val();
 		var query = prefixes + "SELECT DISTINCT ?creator ?name" + "\n" +
@@ -54,7 +61,8 @@
 			var hit = $("<a>").attr("href", elem.creator.value).addClass("element-link");
 			$(hit).append(elem.name.value);
 			var authorUri = encodeURIComponent(elem.creator.value);
-			var toDocuments = $("<a>").attr("href", "publications?author="+ authorUri).append("Documents");
+			var authorName = encodeURIComponent(elem.name.value);
+			var toDocuments = $("<a>").attr("href", "publications?authorname="+ authorName +"&author="+ authorUri).append("Documents");
 			$(row).append(hit).append(toDocuments);
 			hitsContainer.append(row);
 		});

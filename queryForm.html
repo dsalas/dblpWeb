@@ -1,0 +1,161 @@
+<html>
+  <head>
+    <title>SPARQL Test</title>
+    <link rel="shortcut icon" href="">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <script src="utils.js"></script>
+  </head>
+  <body>
+	<div class="author">
+		<h1>Query DBLP:</h1>
+		<div id="select_container">
+			<div><lable>SELECT</label><button id="select_add">+</button></div>
+			<div id="select_fields"></div>
+		</div>
+		<div id="where_container">
+			<div><lable>WHERE</label><button id="where_add">+</button></div>
+			<div id="where_fields"></div>
+		</div>
+		<div id="limit_container">
+			<div><label for="limit_input">LIMIT</label><input id="limit_input" placeholder="Default 30"></input></div>
+		</div>
+		<div id="filter_container">
+			<div><lable for="filter_input">FILTER</label><input id="filter_input"></input></div>
+		</div>
+		<div id="query">
+			<button id="query_button">Query</button>
+			<div id="query_result"></div>
+		</div>
+		<div id="results">
+		</div>
+	</div>	
+  </body>
+<script>
+	var selectCount = 0;
+	var whereCount = 0;
+	
+	$(function() {
+		addSelectItem();
+		addWhereItem();
+	});
+	
+
+	
+	$("#query_button").click(function() {
+		var query = "SELECT DISTINCT ";
+		//Add select fields
+		$(".select-input").each(function(index, elem) {
+			var field = $(elem).val();
+			query += field + " ";
+		});
+		query += "\nWHERE {\n";
+		//Add where fields
+		$(".where-container").each(function(index, elem) {
+			var subject = $(elem).find(".subject").val();
+			var predicate = $(elem).find(".predicate").val();
+			var object = $(elem).find(".object").val();	
+			var triple = subject + " " + predicate + " " + object + " . ";	
+			query += triple;	
+		});
+		query += "}\nLIMIT ";
+		//Add limit fields
+		var limit = $("#limit_input").val();
+		if (limit != "") {
+			query += limit
+		} else {
+			query += "30";
+		}
+		$("#query_result").html("");		
+		$("#query_result").append(query);
+		testQuery(query);
+	});
+	
+	$("#select_add").click(function(){
+		addSelectItem();
+	});
+	
+	$("#where_add").click(function(){
+		addWhereItem();
+	});
+	
+	function testQuery(query) {
+   	var encoded = encodeURIComponent(prefixes + query);
+   	console.log(encoded);
+   	$.ajax({
+    	url: 'http://dblp.l3s.de/d2r/sparql?query=' + encoded + '&output=json',
+    	data: '',
+    	type: 'GET',
+    	crossDomain: true,
+    	dataType: 'jsonp',
+    	success: function(data) { console.log(data); processTestData(data); },
+    	error: function() { alert('Failed!'); },
+	});
+   }
+
+	function processTestData(data) {
+		$("#results").html("");
+		var headers = data.head.vars;
+		$(data.results.bindings).each(function(index,elem) {
+			$(headers).each(function(jndex,header) {
+				//console.log(elem[header].value);
+				$("#results").append(header + " => " + elem[header].value);
+				$("#results").append($("<br>"));
+			});
+			$("#results").append($("<br>"));
+		});
+	}
+	
+	function addSelectItem() {
+		selectCount++;
+		var containerId = "select_item_container_" + selectCount;
+		var itemId = "select_item_" + selectCount;
+		var selectItemLabel = $("<label>").append("Field").attr("for",itemId);
+		var selectItem = $("<input>").attr("type", "text").attr("id", itemId).addClass("select-input").focusout(function(){
+			$(this).val(fixSelectField($(this).val()));
+		});
+		var selectItemButton = $("<button>").html("-").click(function() { removeSelectItem(containerId); });
+		var selectItemContainer = $("<div>").attr("id",containerId).append(selectItemLabel, selectItem,selectItemButton);
+		$("#select_fields").append(selectItemContainer);
+	}
+	
+	function fixSelectField(field) {
+		if (field.charAt(0) != "?") {
+			field = "?" + field;
+		}
+		return field;
+	}
+	
+	function removeSelectItem(containerId) {
+		selectCount--;
+		$("#" + containerId).remove();	
+	}
+	
+	function addWhereItem() {
+		whereCount++;
+		var containerId = "where_item_container_" + selectCount;
+		var itemId = "where_item_" + selectCount;
+		//Subject
+		var subjectItemLabel = $("<label>").append("Subject").attr("for",itemId + "_S");
+		var subjectItem = $("<input>").attr("type", "text").attr("id", itemId + "_S").addClass("subject");
+		var subject = $("<div>").append(subjectItemLabel,subjectItem);
+		//Predicate
+		var predicateItemLabel = $("<label>").append("Predicate").attr("for",itemId + "_P");
+		var predicateItem = $("<input>").attr("type", "text").attr("id", itemId + "_P").addClass("predicate");
+		var predicate = $("<div>").append(predicateItemLabel,predicateItem);
+		//Object
+		var objectItemLabel = $("<label>").append("Object").attr("for",itemId + "_O");
+		var objectItem = $("<input>").attr("type", "text").attr("id", itemId + "_O").addClass("object");
+		var object = $("<div>").append(objectItemLabel,objectItem);
+		//Button
+		var whereItemButton = $("<button>").html("-").click(function() { removeWhereItem(containerId); });
+		var whereItemContainer = $("<div>").attr("id",containerId).append(subject, predicate,object,whereItemButton).addClass("where-container");
+		$("#where_fields").append(whereItemContainer);
+	}
+	
+	function removeWhereItem(containerId) {
+		whereCount--;
+		$("#" + containerId).remove();	
+	}
+</script>
+</html>
